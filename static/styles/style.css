@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body{
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-color: #223243;
+}
+
+.container{
+    position: relative;
+    width: 100%;
+}
+
+.navigation{
+    z-index: 9998;
+    position: fixed;
+    width: 120px;
+    height: 100%;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-sizing: initial;
+    border-left: 5px solid rgb(252, 126, 64);
+    background: rgb(252, 126, 64);
+    transition: 0.5s;
+    display: none;
+    overflow-x:auto;
+}
+
+.navigation.active {
+    display: none;
+  }
+
+.navigation ul{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin-top: 90px;
+    padding-left: 5px;
+    padding-top: 40px;
+}
+
+.navigation ul li{
+    position: relative;
+    list-style: none;
+    width: 100%;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.navigation ul li.active{
+    background-color: #223243;
+}
+
+.navigation ul li b:nth-child(1){
+    position: absolute;
+    top: -20px;
+    height: 20px;
+    width: 100%;
+    background: #223243;
+    display: none;
+}
+
+.navigation ul li b:nth-child(1)::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-bottom-right-radius: 20px;
+    background: rgb(252, 126, 64);
+}
+
+.navigation ul li b:nth-child(2){
+    position: absolute;
+    bottom: -20px;
+    height: 20px;
+    width: 100%;
+    background: #223243;
+    display: none;
+}
+
+.navigation ul li b:nth-child(2)::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-top-right-radius: 20px;
+    background: rgb(252, 126, 64);
+}
+
+.navigation ul li.active b:nth-child(1),
+.navigation ul li.active b:nth-child(2){
+    display: block;
+}
+
+.navigation ul li a{
+    position: relative;
+    display: block;
+    width: 100%;
+    display: flex;
+    text-decoration: none;
+    color: #fff;
+}
+
+.navigation ul li.active a{
+    color: rgb(252, 126, 64);
+}
+
+.navigation ul li a .title{
+    position: relative;
+    display: block;
+    font-weight: 500;
+    font-size: 20px;
+    padding-left: 10px;
+    height: 60px;
+    line-height: 60px;
+    white-space: normal;
+}
+
+.toggle{
+    z-index: 9999;
+    position: fixed;
+    right: 30px;
+    top: 30px;
+    width: 50px;
+    height: 50px;
+    background: rgb(252, 126, 64);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toggle.active{
+    background: #fd3d3d;
+}
+
+.toggle i{
+    position: absolute;
+    color: #fff;
+    font-size: 28px;
+    display: none;
+}
+
+.toggle i#open,
+.toggle.active i#close{
+    display: block;
+}
+
+.toggle i#close,
+.toggle.active i#open{
+    display: none;
+}
