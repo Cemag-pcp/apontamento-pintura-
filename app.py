@@ -11,22 +11,44 @@ app.secret_key = "apontamentopintura"
 @app.route('/')
 def gerar_cambao():
 
-    scope = ['https://www.googleapis.com/auth/spreadsheets',
-             "https://www.googleapis.com/auth/drive"]
+    def get_sheet_data_gerar():
+
+        scope = ['https://www.googleapis.com/auth/spreadsheets',
+                "https://www.googleapis.com/auth/drive"]
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+        client = gspread.authorize(credentials)
+        sa = gspread.service_account('service_account.json')    
+
+        name_sheet = 'Base gerador de ordem de producao'
+        worksheet = 'Pintura'
+        sh = sa.open(name_sheet)
+        wks = sh.worksheet(worksheet)
+        list1 = wks.get_all_records()
+        table = pd.DataFrame(list1)
+        table = table.drop_duplicates()
+
+        table = table.drop(table.index[0])
+
+        table.reset_index(drop=True)
+
+        table['PROD.'] = ''
+
+        table['CAMBÃO'] = ''
+
+        table['TIPO'] = ''
+
+        table = table[['CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.']]
+
+        values = table.values.tolist()
+
+        return values , table
     
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-    client = gspread.authorize(credentials)
-    sa = gspread.service_account('service_account.json')    
+    sheet_data, table = get_sheet_data_gerar()
 
-    name_sheet = 'Base gerador de ordem de producao'
-    worksheet = 'Pintura'
-    sh = sa.open(name_sheet)
-    wks = sh.worksheet(worksheet)
-    list1 = wks.get_all_records()
-    table = pd.DataFrame(list1)
-    table = table.drop_duplicates()
+    print(table)
 
-    return render_template('gerar_cambao.html')
+    return render_template('gerar_cambao.html', sheet_data=sheet_data)
 
 @app.route('/finalizarcambao')
 def finalizar_cambao():

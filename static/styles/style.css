@@ -10,7 +10,7 @@
 body{
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: #223243;
+    background-color: rgb(255, 249, 241);
 }
 
 .container{
@@ -56,7 +56,7 @@ body{
 }
 
 .navigation ul li.active{
-    background-color: #223243;
+    background-color: rgb(255, 249, 241);
 }
 
 .navigation ul li b:nth-child(1){
@@ -64,7 +64,7 @@ body{
     top: -20px;
     height: 20px;
     width: 100%;
-    background: #223243;
+    background: rgb(255, 249, 241);
     display: none;
 }
 
@@ -84,7 +84,7 @@ body{
     bottom: -20px;
     height: 20px;
     width: 100%;
-    background: #223243;
+    background: rgb(255, 249, 241);
     display: none;
 }
 
@@ -114,7 +114,7 @@ body{
 }
 
 .navigation ul li.active a{
-    color: rgb(252, 126, 64);
+    color: rgb(15, 12, 10);
 }
 
 .navigation ul li a .title{
@@ -149,7 +149,7 @@ body{
 
 .toggle i{
     position: absolute;
-    color: #fff;
+    color: rgb(255, 249, 241);
     font-size: 28px;
     display: none;
 }

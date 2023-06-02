@@ -1,5 +1,48 @@
 {% extends "index.html" %}
 {% block body %}
+    <div>
+        <input type="date">
+    </div>
+    <div id ='planilha'>
+        <table>
+            <thead>
+                <tr id = 'nomes_colunas' >
+                    <th>Código</th>
+                    <th>Descrição</th>
+                    <th>Qt_itens</th>
+                    <th>Cor</th>
+                    <th>Prod.</th>
+                    <th>Cambão</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sheet_data %}
+                    {% for data in sheet_data %}
+                    <tr>
+                        <td><input id = 'codigo' type="text" value="{{ data[0] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                        <td><input id = 'descricao' type="text" value="{{ data[1] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                        <td><input id = 'qt_itens' type="text" value="{{ data[2] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                        <td><input id = 'cor' type="text" value="{{ data[3] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                        <td><input id = 'prod' type="text" value="{{ data[4] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                        <td><input id = 'cambao' type="text" value="{{ data[5] }}" /></td>
+                        <td>
+                            <select id = 'tipo'>
+                                <option value="" selected hidden></option>
+                                <option value="po">PO</option>
+                                <option value="pu">PU</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-
+                {% else %}
+                    <tr>
+                        <td colspan="7">Nenhum dado disponível</td>
+                    </tr>
+                {% endif %}
+                    <td><button class="enviar">Enviar</button></td>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
