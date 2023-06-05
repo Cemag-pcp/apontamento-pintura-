@@ -1,5 +1,98 @@
 {% extends "index.html" %}
 {% block body %}
 
+<form action="/finalizar-cambao" method="POST">
+    <div class="form-group">
+        <input name="data_filter" type="date">
+        <button type="submit">Filtrar</button>
+    </div>
+</form>
+
+<form id="MyForm">
+    <div class="center-container">
+        <table class="table table-striped centered-table">        
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Peça</th>
+                    <th>Cor</th>
+                    <th>Qt. apont.</th>
+                    <th>Cambão</th>
+                    <th>Tipo</th>
+                    <th>Data da carga</th>
+                    <th>id</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in table %}
+                <tr>
+                    <td>{{data[0]}}</td>
+                    <td>{{data[1]}}</td>
+                    <td>{{data[2]}}</td>
+                    <td>{{data[3]}}</td>
+                    <td>{{data[4]}}</td>
+                    <td>{{data[5]}}</td>
+                    <td>{{data[6]}}</td>
+                    <td>{{data[7]}}</td>
+                    <td>
+                        <input name="status">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit">Enviar</button>
+
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    document.getElementById("MyForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Evita que o formulário seja enviado da maneira padrão
+
+        // Obtém os dados da tabela
+        var tableData = [];
+        var tableRows = document.querySelectorAll("#MyForm tbody tr");
+
+        tableRows.forEach(function(row) {
+            var rowData = {
+                codigo: row.cells[0].textContent,
+                peca: row.cells[1].textContent,
+                cor: row.cells[2].textContent,
+                qtApont: row.cells[3].textContent,
+                cambao: row.cells[4].textContent,
+                tipo: row.cells[5].textContent,
+                dataCarga: row.cells[6].textContent,
+                id: row.cells[7].textContent,
+                status: row.cells[8].querySelector("input[name=status]").value
+            };
+
+            tableData.push(rowData);
+        });
+
+        // Envie os dados para o backend (rota Flask)
+        fetch("/tratar_dados", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(tableData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Lida com a resposta do backend, se necessário
+            console.log(data);
+            window.location.reload();
+        })
+        .catch(error => {
+            // Lida com erros, se necessário
+            console.error(error);
+        });
+    });
+</script>
 
 {% endblock %}
