@@ -1,48 +1,110 @@
 {% extends "index.html" %}
 {% block body %}
-    <div>
-        <input type="date">
-    </div>
-    <div id ='planilha'>
-        <table>
-            <thead>
-                <tr id = 'nomes_colunas' >
-                    <th>Código</th>
-                    <th>Descrição</th>
-                    <th>Qt_itens</th>
-                    <th>Cor</th>
-                    <th>Prod.</th>
-                    <th>Cambão</th>
-                    <th>Tipo</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if sheet_data %}
-                    {% for data in sheet_data %}
-                    <tr>
-                        <td><input id = 'codigo' type="text" value="{{ data[0] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                        <td><input id = 'descricao' type="text" value="{{ data[1] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                        <td><input id = 'qt_itens' type="text" value="{{ data[2] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                        <td><input id = 'cor' type="text" value="{{ data[3] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                        <td><input id = 'prod' type="text" value="{{ data[4] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                        <td><input id = 'cambao' type="text" value="{{ data[5] }}" /></td>
-                        <td>
-                            <select id = 'tipo'>
-                                <option value="" selected hidden></option>
-                                <option value="po">PO</option>
-                                <option value="pu">PU</option>
-                            </select>
-                        </td>
-                    </tr>
-                    {% endfor %}
 
-                {% else %}
-                    <tr>
-                        <td colspan="7">Nenhum dado disponível</td>
-                    </tr>
-                {% endif %}
-                    <td><button class="enviar">Enviar</button></td>
-            </tbody>
-        </table>
+<form action="/" method="POST">
+    <div class="form-group">
+        <label>Data:</label>
+            <input name = "filtro_data" type="date" onchange="this.form.elements['filtro_cor'].value = 'Todas'; this.form.submit();" value="{{ request.form['filtro_data'] }}">
+        <label>Cores:</label>
+        <select name = 'filtro_cor'>
+            <option value="Todas" {% if request.form['filtro_cor'] == 'Todas' %} selected {% endif %}>Todas</option>
+            {% for cor in cores %}
+            <option value="{{ cor }}" {% if request.form['filtro_cor'] == cor %} selected {% endif %}>{{ cor }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filtrar</button>
     </div>
+</form>
+   
+<div id ='planilha'>
+    <table>
+        <thead>
+            <tr id = 'nomes_colunas' >
+                <th>Data</th>
+                <th>Código</th>
+                <th>Descrição</th>
+                <th>Quant. Itens</th>
+                <th>Cor</th>
+                <th>Prod.</th>
+                <th>Cambão</th>
+                <th>Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if sheet_data %}
+                {% for data in sheet_data %}
+                <tr>
+                    <td><input id = 'DATA DA CARGA' type="text" value="{{ data[0] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                    <td><input id = 'CODIGO' type="text" value="{{ data[1] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                    <td><input id = 'PEÇA' type="text" value="{{ data[2] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                    <td><input id = 'QT_ITENS' type="text" value="{{ data[3] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                    <td><input id = 'COR' type="text" value="{{ data[4] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
+                    <td><input id = 'PROD' type="text" value="{{ data[5] }}"></td>
+                    <td><input id = 'CAMBAO' type="text" value="{{ data[6] }}" /></td>
+                    <td>
+                        <select id = 'TIPO' type="text" value="{{ data[7] }}">
+                            <option value="" selected hidden></option>
+                            <option value="PO">PO</option>
+                            <option value="PU">PU</option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            {% else %}
+                <tr>
+                    <td colspan="7">Nenhum dado disponível</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <button class="botao-enviar-tabela">Enviar</button>
+</div>
+
+<div id="loading-overlay" style="display: none;">
+    <div id="loading-spinner"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.botao-enviar-tabela').click(function() {
+            var dados = [];
+
+            $('#planilha tbody tr').each(function() {
+                var data = $(this).find('#DATA DA CARGA').val();
+                var codigo = $(this).find('#CODIGO').val();
+                var descricao = $(this).find('#PEÇA').val();
+                var qt_itens = $(this).find('#QT_ITENS').val();
+                var cor = $(this).find('#COR').val();
+                var prod = $(this).find('#PROD').val();
+                var cambao = $(this).find('#CAMBAO').val();
+                var tipo = $(this).find('#TIPO').val();
+
+                dados.push({
+                    data: data,
+                    codigo: codigo,
+                    descricao: descricao,
+                    qt_itens: qt_itens,
+                    cor: cor,
+                    prod: prod,
+                    cambao: cambao,
+                    tipo: tipo
+                });
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '/send_gerar',
+                data: JSON.stringify(dados),
+                contentType: 'application/json',
+                complete: function() {
+                    // Ocultar o indicador de carregamento
+                    location.reload();
+                }
+            });
+        });
+    });
+</script>
+
 {% endblock %}
