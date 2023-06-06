@@ -9,11 +9,9 @@ import datetime
 
 app = Flask(__name__)
 app.secret_key = "apontamentopintura"
-
-@app.route('/', methods=['GET','POST'])
 app.register_blueprint(finalizarcambao_bp)
 
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def gerar_cambao():
 
     def get_sheet_data_gerar():
