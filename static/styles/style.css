@@ -326,3 +326,23 @@ table {
     margin: 5px;
     padding: 5px;
 }
+
+#MyForm{
+    position: relative;
+    width: 140vh;
+    height: 600px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,15%);
+    background: rgba(255, 255, 255, 0.7);
+    padding: 30px;
+    border: solid 1.5px black;
+    border-radius: 20px;
+    align-items: center;
+    overflow-y: scroll;
+    overflow-x: auto;
+}
+
+#MyForm input{
+    margin-top: 15px;
+}
