@@ -10,7 +10,7 @@
 body{
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: #223243;
+    background-color: rgb(255, 249, 241);
 }
 
 .container{
@@ -67,7 +67,7 @@ table {
 }
 
 .navigation ul li.active{
-    background-color: #223243;
+    background-color: rgb(255, 249, 241);
 }
 
 .navigation ul li b:nth-child(1){
@@ -75,7 +75,7 @@ table {
     top: -20px;
     height: 20px;
     width: 100%;
-    background: #223243;
+    background: rgb(255, 249, 241);
     display: none;
 }
 
@@ -95,7 +95,7 @@ table {
     bottom: -20px;
     height: 20px;
     width: 100%;
-    background: #223243;
+    background: rgb(255, 249, 241);
     display: none;
 }
 
@@ -125,7 +125,7 @@ table {
 }
 
 .navigation ul li.active a{
-    color: rgb(252, 126, 64);
+    color: rgb(15, 12, 10);
 }
 
 .navigation ul li a .title{
@@ -160,7 +160,7 @@ table {
 
 .toggle i{
     position: absolute;
-    color: #fff;
+    color: rgb(255, 249, 241);
     font-size: 28px;
     display: none;
 }
@@ -173,4 +173,156 @@ table {
 .toggle i#close,
 .toggle.active i#open{
     display: none;
+}
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #fff;
+    border-top: 3px solid #f00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.form-group{
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-32%,120%);
+}
+
+.form-group input{
+    padding: 3px;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.form-group select{
+    padding: 3px;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.form-group button{
+    padding: 3px;
+}
+
+.botao-enviar-tabela{
+    left: 50%;
+    top: 50%;
+    transform: translate(600%,220%);
+    padding: 10px;
+    border-radius: 10px;
+    border: solid 1.5px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.botao-enviar-tabela:hover{
+    background-color: rgb(163, 163, 163);
+    color: #fff;
+    border: solid 1.5px #fff;
+    box-shadow: none;
+}
+
+#planilha {
+    position: relative;
+    width: 120vh;
+    height: 728px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 10%);
+    background: rgba(255, 255, 255, 0.7);
+    padding: 30px;
+    border: solid 1.5px black;
+    border-radius: 20px;
+    align-items: center;
+    overflow-y: scroll;
+    overflow-x: auto;
+}
+
+.column-names{
+    left: 50%;
+    top: 50%;
+    transform: translate(20%,200%);
+    margin-top: 8px;
+}
+
+#data{
+    background-color: rgb(241, 240, 240);
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#codigo{
+    background-color: rgb(241, 240, 240);
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#descricao{
+    background-color: rgb(241, 240, 240); 
+    width: 380px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#qt_itens{
+    background-color: rgb(241, 240, 240); 
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#cor{
+    background-color: rgb(241, 240, 240); 
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#prod{
+    width: 60px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#cambao{
+    width: 70px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#tipo{
+    width: 60px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
 }
