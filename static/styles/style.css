@@ -190,3 +190,128 @@ body{
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.form-group{
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-32%,120%);
+}
+
+.form-group input{
+    padding: 3px;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.form-group select{
+    padding: 3px;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.form-group button{
+    padding: 3px;
+}
+
+.botao-enviar-tabela{
+    left: 50%;
+    top: 50%;
+    transform: translate(600%,220%);
+    padding: 10px;
+    border-radius: 10px;
+    border: solid 1.5px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.botao-enviar-tabela:hover{
+    background-color: rgb(163, 163, 163);
+    color: #fff;
+    border: solid 1.5px #fff;
+    box-shadow: none;
+}
+
+#planilha {
+    position: relative;
+    width: 120vh;
+    height: 728px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 10%);
+    background: rgba(255, 255, 255, 0.7);
+    padding: 30px;
+    border: solid 1.5px black;
+    border-radius: 20px;
+    align-items: center;
+    overflow-y: scroll;
+    overflow-x: auto;
+}
+
+.column-names{
+    left: 50%;
+    top: 50%;
+    transform: translate(20%,200%);
+    margin-top: 8px;
+}
+
+#data{
+    background-color: rgb(241, 240, 240);
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#codigo{
+    background-color: rgb(241, 240, 240);
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#descricao{
+    background-color: rgb(241, 240, 240); 
+    width: 380px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#qt_itens{
+    background-color: rgb(241, 240, 240); 
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#cor{
+    background-color: rgb(241, 240, 240); 
+    width: 100px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#prod{
+    width: 60px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#cambao{
+    width: 70px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}
+
+#tipo{
+    width: 60px; 
+    padding-left: 8px; 
+    margin: 5px;
+    padding: 5px;
+}

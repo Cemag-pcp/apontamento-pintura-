@@ -25,8 +25,13 @@ def gerar_cambao():
         worksheet = 'Pintura'
         sh = sa.open(name_sheet)
         wks = sh.worksheet(worksheet)
-        list1 = wks.get_all_records()
+        list1 = wks.get()
+        cabecalho = wks.row_values(1)
+
         table = pd.DataFrame(list1)
+        table = table.iloc[:,:8]
+        table = table.set_axis(cabecalho, axis=1)
+
         table = table.drop_duplicates()
 
         table = table.drop(table.index[0])
@@ -39,7 +44,7 @@ def gerar_cambao():
 
         table['TIPO'] = ''
 
-        table = table[['DATA DA CARGA','CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.']]
+        table = table[['DATA DA CARGA','CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.','CAMBÃO','TIPO']]
         
         values = table.values.tolist()
 
@@ -90,9 +95,15 @@ def gerar_planilha():
     
     table_final = pd.DataFrame(dados)
 
-    table_final['UNICO'] = ''
+    table_final['setor'] = 'Pintura'
 
-    table_final['SETOR'] = 'Pintura'
+    table_final['flag'] = ''
+
+    table_final['flag'] = table_final['codigo'] + table_final['data'] + table_final['cambao']
+
+    table_final['flag'] = table_final['flag'].replace('/','',regex=True)
+
+    table_final['data finalizada'] = datetime.datetime.today().strftime("%d/%m/%Y")
 
     table_final = table_final[table_final['prod'] != '']
 
@@ -100,7 +111,25 @@ def gerar_planilha():
         if table_final['tipo'][i] == '':
             table_final['tipo'][i] = 'PO'
 
+    table_final = table_final[['flag','codigo', 'descricao', 'qt_itens', 'cor', 'prod','cambao','tipo','data','data finalizada','setor']]
+
+    lista_final = table_final.values.tolist()
+
     print(table_final)
+
+    scope = ['https://www.googleapis.com/auth/spreadsheets',
+                "https://www.googleapis.com/auth/drive"]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    client = gspread.authorize(credentials)
+    sa = gspread.service_account('service_account.json')    
+
+    name_sheet = 'Base ordens de produçao finalizada'
+    worksheet = 'Pintura'
+    sh = sa.open(name_sheet)
+    wks = sh.worksheet(worksheet)
+
+    # wks.append_rows(lista_final)
 
     return 'Planilha gerada com sucesso!'
 

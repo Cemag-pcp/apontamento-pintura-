@@ -16,33 +16,32 @@
     </div>
 </form>
    
+<div class="column-names" style="margin-left: 50px;">
+    <label style="margin-right: 10px; font-weight: bold;">Data</label>
+    <label style="margin-left: 50px; font-weight: bold;">Código</label>
+    <label style="margin-left: 160px; font-weight: bold;">Descrição</label>
+    <label style="margin-left: 180px; font-weight: bold;">Quant. Itens</label>
+    <label style="margin-left: 30px; font-weight: bold;">Cor</label>
+    <label style="margin-left: 50px; font-weight: bold;">Prod.</label>
+    <label style="margin-left: 20px; font-weight: bold;">Cambão</label>
+    <label style="margin-left: 20px; font-weight: bold;">Tipo</label>
+</div>
+
 <div id ='planilha'>
     <table>
-        <thead>
-            <tr id = 'nomes_colunas' >
-                <th>Data</th>
-                <th>Código</th>
-                <th>Descrição</th>
-                <th>Quant. Itens</th>
-                <th>Cor</th>
-                <th>Prod.</th>
-                <th>Cambão</th>
-                <th>Tipo</th>
-            </tr>
-        </thead>
         <tbody>
             {% if sheet_data %}
                 {% for data in sheet_data %}
                 <tr>
-                    <td><input id = 'DATA DA CARGA' type="text" value="{{ data[0] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                    <td><input id = 'CODIGO' type="text" value="{{ data[1] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                    <td><input id = 'PEÇA' type="text" value="{{ data[2] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                    <td><input id = 'QT_ITENS' type="text" value="{{ data[3] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                    <td><input id = 'COR' type="text" value="{{ data[4] }}" disabled style="background-color: rgb(241, 240, 240);"></td>
-                    <td><input id = 'PROD' type="text" value="{{ data[5] }}"></td>
-                    <td><input id = 'CAMBAO' type="text" value="{{ data[6] }}" /></td>
+                    <td><input id = 'data' type="text" value="{{ data[0] }}" disabled></td>
+                    <td><input id = 'codigo' type="text" value="{{ data[1] }}" disabled></td>
+                    <td><input id = 'descricao' type="text" value="{{ data[2] }}" disabled></td>
+                    <td><input id = 'qt_itens' type="text" value="{{ data[3] }}" disabled></td>
+                    <td><input id = 'cor' type="text" value="{{ data[4] }}" disabled></td>
+                    <td><input id = 'prod' type="text" value="{{ data[5] }}"></td>
+                    <td><input id = 'cambao' type="text" value="{{ data[6] }}"></td>
                     <td>
-                        <select id = 'TIPO' type="text" value="{{ data[7] }}">
+                        <select id = 'tipo' type="text" value="{{ data[7] }}">
                             <option value="" selected hidden></option>
                             <option value="PO">PO</option>
                             <option value="PU">PU</option>
@@ -58,8 +57,8 @@
             {% endif %}
         </tbody>
     </table>
-    <button class="botao-enviar-tabela">Enviar</button>
 </div>
+<button class="botao-enviar-tabela">Enviar</button>
 
 <div id="loading-overlay" style="display: none;">
     <div id="loading-spinner"></div>
@@ -69,17 +68,18 @@
 <script>
     $(document).ready(function() {
         $('.botao-enviar-tabela').click(function() {
+            $("#loading-overlay").show();
             var dados = [];
 
             $('#planilha tbody tr').each(function() {
-                var data = $(this).find('#DATA DA CARGA').val();
-                var codigo = $(this).find('#CODIGO').val();
-                var descricao = $(this).find('#PEÇA').val();
-                var qt_itens = $(this).find('#QT_ITENS').val();
-                var cor = $(this).find('#COR').val();
-                var prod = $(this).find('#PROD').val();
-                var cambao = $(this).find('#CAMBAO').val();
-                var tipo = $(this).find('#TIPO').val();
+                var data = $(this).find('#data').val();
+                var codigo = $(this).find('#codigo').val();
+                var descricao = $(this).find('#descricao').val();
+                var qt_itens = $(this).find('#qt_itens').val();
+                var cor = $(this).find('#cor').val();
+                var prod = $(this).find('#prod').val();
+                var cambao = $(this).find('#cambao').val();
+                var tipo = $(this).find('#tipo').val();
 
                 dados.push({
                     data: data,
@@ -89,7 +89,7 @@
                     cor: cor,
                     prod: prod,
                     cambao: cambao,
-                    tipo: tipo
+                    tipo: tipo,
                 });
             });
 
@@ -104,6 +104,7 @@
                 }
             });
         });
+                    $("#loading-overlay").hide();
     });
 </script>
 
