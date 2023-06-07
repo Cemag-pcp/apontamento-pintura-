@@ -80,9 +80,10 @@ def finalizar_cambao():
 def tratar_dados():
 
     # Obtém os dados enviados na requisição
-    table_data = request.json
+    table_data = request.get_json()
 
     df = pd.DataFrame(table_data)
+
     df = df[df['status'] != '']
     
     print(df)

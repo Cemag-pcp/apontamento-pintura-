@@ -30,6 +30,9 @@
             </ul>
         </div>
     </div>
+    <div id="loading-overlay" style="display: none;">
+        <div id="loading-spinner"></div>
+    </div>
     <div class="toggle">
         <i class="fa-sharp fa-solid fa-bars" id ='open'></i>
         <i class="fa-sharp fa-solid fa-xmark" id = 'close'></i>
@@ -38,5 +41,6 @@
     {% block body %}
     {% endblock %}
     <script src="static\js\navbar.js"></script>
+    <script src="static\js\loading.js"></script>
 </body>
 </html>

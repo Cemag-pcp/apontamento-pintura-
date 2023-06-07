@@ -1,19 +1,20 @@
 {% extends "index.html" %}
 {% block body %}
 
-<form action="/finalizar-cambao" method="POST">
+<form action="/finalizar-cambao" onsubmit="mostrarLoadingOverlay();" method="POST">
     <div class="form-group">
         <label>Data:</label>
-            <input name="data_filter" type="date">
+            <input name="data_filter" type="date" value="{{ request.form['data_filter'] }}">
         <button type="submit">Filtrar</button>
     </div>
 </form>
 
-<form id="MyForm">
+<h1 id = 'titulo_finalizar'>Finalizar Cambão</h1>
+<div id="MyForm">
     <div class="center-container">
         <table class="table table-striped centered-table">        
             <thead id = 'cabecalho_finalizar'>
-                <tr style="margin-bottom: 60px;">
+                <tr style="margin-bottom: 20px;">
                     <th>Código</th>
                     <th>Peça</th>
                     <th>Cor</th>
@@ -29,16 +30,16 @@
             <tbody id = 'tabela_finalizar'>
                 {% for data in table %}
                 <tr>
-                    <td><input id = 'data' type="text" value="{{ data[0] }}" disabled></td>
-                    <td><input id = 'descricao' type="text" value="{{ data[1] }}" disabled></td>
-                    <td><input id = 'codigo' type="text" value="{{ data[2] }}" disabled></td>
-                    <td><input id = 'qt_itens' type="text" value="{{ data[3] }}" disabled></td>
-                    <td><input id = 'cor' type="text" value="{{ data[4] }}" disabled></td>
-                    <td><input id = 'cor' type="text" value="{{ data[5] }}" disabled></td>
-                    <td><input id = 'cor' type="text" value="{{ data[6] }}" disabled></td>
-                    <td><input id = 'cor' type="text" value="{{ data[7] }}" disabled></td>
+                    <td><input id = 'codigo_finalizar' type="text" value="{{ data[0] }}" disabled></td>
+                    <td><input id = 'peca_finalizar' type="text" value="{{ data[1] }}" disabled></td>
+                    <td><input id = 'cor_finalizar' type="text" value="{{ data[2] }}" disabled></td>
+                    <td><input id = 'qt_apont_finalizar' type="text" value="{{ data[3] }}" disabled></td>
+                    <td><input id = 'cambao_finalizar' type="text" value="{{ data[4] }}" disabled></td>
+                    <td><input id = 'tipo_finalizar' type="text" value="{{ data[5] }}" disabled></td>
+                    <td><input id = 'data_carga_finalizar' type="text" value="{{ data[6] }}" disabled></td>
+                    <td><input id = 'id_finalizar' type="text" value="{{ data[7] }}" disabled></td>
                     <td>
-                        <input id = 'prod' name="status">
+                        <input id = 'status_finalizar' name="status">
                     </td>
                 </tr>
                 {% endfor %}
@@ -46,10 +47,9 @@
             </div>
         </table>
     </div>
+</div>
 
-</form>
-
-<button class="botao-enviar-tabela" type="submit" style="margin-top: 20px;">Enviar</button>
+<button class="botao-enviar-tabela-2" type="submit" style="margin-top: 20px;">Enviar</button>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -58,47 +58,49 @@
 </div>
 
 <script>
-    document.getElementById("MyForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Evita que o formulário seja enviado da maneira padrão
+    $(document).ready(function() {
+        $('.botao-enviar-tabela-2').click(function() {
+            $("#loading-overlay").show();
 
         // Obtém os dados da tabela
         var tableData = [];
-        var tableRows = document.querySelectorAll("#MyForm tbody tr");
+        $('#MyForm tbody tr').each(function() {
+                var codigo = $(this).find('#codigo_finalizar').val();
+                var peca = $(this).find('#peca_finalizar').val();
+                var cor = $(this).find('#cor_finalizar').val();
+                var qt_apont = $(this).find('#qt_apont_finalizar').val();
+                var cambao = $(this).find('#cambao_finalizar').val();
+                var tipo = $(this).find('#tipo_finalizar').val();
+                var data = $(this).find('#data_carga_finalizar').val();
+                var id = $(this).find('#id_finalizar').val();
+                var status = $(this).find('#status_finalizar').val().toUpperCase();
 
-        tableRows.forEach(function(row) {
-            var rowData = {
-                codigo: row.cells[0].textContent,
-                peca: row.cells[1].textContent,
-                cor: row.cells[2].textContent,
-                qtApont: row.cells[3].textContent,
-                cambao: row.cells[4].textContent,
-                tipo: row.cells[5].textContent,
-                dataCarga: row.cells[6].textContent,
-                id: row.cells[7].textContent,
-                status: row.cells[8].querySelector("input[name=status]").value
-            };
+                tableData.push({
+                    codigo: codigo,
+                    peca: peca,
+                    cor: cor,
+                    qt_apont: qt_apont,
+                    cambao: cambao,
+                    tipo: tipo,
+                    data: data,
+                    id: id,
+                    status: status,
 
-            tableData.push(rowData);
+                });
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '/tratar_dados',
+                data: JSON.stringify(tableData),
+                contentType: 'application/json',
+                complete: function() {
+                    // Ocultar o indicador de carregamento
+                    location.reload();
+                }
+            });
         });
-
-        // Envie os dados para o backend (rota Flask)
-        fetch("/tratar_dados", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(tableData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Lida com a resposta do backend, se necessário
-            console.log(data);
-            window.location.reload();
-        })
-        .catch(error => {
-            // Lida com erros, se necessário
-            console.error(error);
-        });
+                    $("#loading-overlay").hide();
     });
 </script>
 

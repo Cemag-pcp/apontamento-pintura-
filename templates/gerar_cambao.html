@@ -1,10 +1,10 @@
 {% extends "index.html" %}
 {% block body %}
 
-<form action="/" method="POST">
+<form action="/" onsubmit="mostrarLoadingOverlay();" method="POST">
     <div class="form-group">
         <label>Data:</label>
-            <input name = "filtro_data" type="date" onchange="this.form.elements['filtro_cor'].value = 'Todas'; this.form.submit();" value="{{ request.form['filtro_data'] }}">
+            <input name = "filtro_data" type="date" onchange=" mostrarLoadingOverlay(); this.form.elements['filtro_cor'].value = 'Todas'; this.form.submit();" value="{{ request.form['filtro_data'] }}">
         <label>Cores:</label>
         <select name = 'filtro_cor'>
             <option value="Todas" {% if request.form['filtro_cor'] == 'Todas' %} selected {% endif %}>Todas</option>
@@ -12,23 +12,26 @@
             <option value="{{ cor }}" {% if request.form['filtro_cor'] == cor %} selected {% endif %}>{{ cor }}</option>
             {% endfor %}
         </select>
-        <button type="submit">Filtrar</button>
+        <button id="filtrar-button" type="submit">Filtrar</button>
     </div>
 </form>
-   
-<div class="column-names" style="margin-left: 50px;">
-    <label style="margin-right: 10px; font-weight: bold;">Data</label>
-    <label style="margin-left: 50px; font-weight: bold;">Código</label>
-    <label style="margin-left: 160px; font-weight: bold;">Descrição</label>
-    <label style="margin-left: 180px; font-weight: bold;">Quant. Itens</label>
-    <label style="margin-left: 30px; font-weight: bold;">Cor</label>
-    <label style="margin-left: 50px; font-weight: bold;">Prod.</label>
-    <label style="margin-left: 20px; font-weight: bold;">Cambão</label>
-    <label style="margin-left: 20px; font-weight: bold;">Tipo</label>
-</div>
 
-<div id ='planilha'>
-    <table>
+<h1 id = 'titulo_gerar'>Gerar Cambão</h1>
+<div id="planilha">
+    <div class="center-container">
+        <table class="table table-striped centered-table">       
+        <thead id = 'cabecalho_gerar'>
+            <tr style="margin-bottom: 20px;">
+                <th>Data</th>
+                <th>Código</th>
+                <th>Descrição</th>
+                <th>Quant. Itens</th>
+                <th>Cor</th>
+                <th>Prod.</th>
+                <th>Cambão</th>
+                <th>Tipo</th>
+            </tr>
+        </thead>
         <tbody>
             {% if sheet_data %}
                 {% for data in sheet_data %}
@@ -56,9 +59,10 @@
                 </tr>
             {% endif %}
         </tbody>
-    </table>
+        </table>
+    </div>
 </div>
-<button class="botao-enviar-tabela">Enviar</button>
+<button class="botao-enviar-tabela-1">Enviar</button>
 
 <div id="loading-overlay" style="display: none;">
     <div id="loading-spinner"></div>
@@ -67,7 +71,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('.botao-enviar-tabela').click(function() {
+        $('.botao-enviar-tabela-1').click(function() {
             $("#loading-overlay").show();
             var dados = [];
 

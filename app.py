@@ -131,7 +131,7 @@ def gerar_planilha():
     sh = sa.open(name_sheet)
     wks = sh.worksheet(worksheet)
 
-    # wks.append_rows(lista_final)
+    wks.append_rows(lista_final)
 
     return 'Planilha gerada com sucesso!'
 
