@@ -115,6 +115,10 @@ def gerar_planilha():
 
     table_final = table_final[['flag','codigo', 'descricao', 'qt_itens', 'cor', 'prod','cambao','tipo','data','data finalizada','setor']]
 
+    table_final['prod'] = table_final['prod'].astype(int)
+    table_final['cambao'] = table_final['cambao'].astype(int)
+    table_final['qt_itens'] = table_final['qt_itens'].astype(int)
+
     lista_final = table_final.values.tolist()
 
     print(table_final)

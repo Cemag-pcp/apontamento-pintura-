@@ -86,6 +86,9 @@ def tratar_dados():
 
     df = df[df['status'] != '']
     
+    df['prod'] = df['prod'].astype(int)
+    df['cambao'] = df['cambao'].astype(int)
+    
     print(df)
 
     lista_id = df['id'].values.tolist() 
