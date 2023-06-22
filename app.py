@@ -109,9 +109,14 @@ def gerar_planilha():
 
     table_final = table_final[table_final['prod'] != '']
 
+    table_final.reset_index(drop=True)
+
     for i in range(len(table_final)):
-        if table_final['tipo'][i] == '':
-            table_final['tipo'][i] = 'PO'
+        try:
+            if table_final['tipo'][i] == '':
+                table_final['tipo'][i] = 'PO'
+        except:
+            pass
 
     table_final = table_final[['flag','codigo', 'descricao', 'qt_itens', 'cor', 'prod','cambao','tipo','data','data finalizada','setor']]
 
