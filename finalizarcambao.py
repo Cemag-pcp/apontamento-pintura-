@@ -86,7 +86,8 @@ def tratar_dados():
 
     df = df[df['status'] != '']
     
-    df['prod'] = df['prod'].astype(int)
+    print(df)
+
     df['cambao'] = df['cambao'].astype(int)
     
     print(df)
