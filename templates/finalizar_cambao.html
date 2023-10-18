@@ -5,6 +5,11 @@
     <div class="form-group">
         <label>Data:</label>
             <input name="data_filter" type="date" value="{{ request.form['data_filter'] }}">
+        <select name="filtro_tipo" id="filtro_tipo">
+            <option value="Todos">Todos</option>
+            <option value="PÓ">PÓ</option>
+            <option value="PU">PU</option>
+        </select> 
         <button type="submit">Filtrar</button>
     </div>
 </form>
@@ -39,7 +44,7 @@
                     <td><input id = 'data_carga_finalizar' type="text" value="{{ data[6] }}" disabled></td>
                     <td><input id = 'id_finalizar' type="text" value="{{ data[7] }}" disabled></td>
                     <td>
-                        <input id = 'status_finalizar' name="status">
+                        <input id = 'status_finalizar' name="status" value="Ok">
                     </td>
                 </tr>
                 {% endfor %}
@@ -56,6 +61,10 @@
 <div id="loading-overlay" style="display: none;">
     <div id="loading-spinner"></div>
 </div>
+
+<script>
+
+</script>
 
 <script>
     $(document).ready(function() {
@@ -103,5 +112,33 @@
                     $("#loading-overlay").hide();
     });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleciona o elemento do <select>
+        var selectElement = document.getElementById("filtro_tipo");
+
+        // Recupere a opção selecionada (se houver)
+        var opcaoSelecionada = localStorage.getItem("opcaoSelecionada");
+
+        if (opcaoSelecionada) {
+            // Se uma opção foi selecionada, defina-a como a primeira opção
+            selectElement.value = opcaoSelecionada;
+        }
+
+        // Adicione um ouvinte de evento de mudança ao <select>
+        selectElement.addEventListener("change", function () {
+            // Armazene a opção selecionada no armazenamento local
+            localStorage.setItem("opcaoSelecionada", selectElement.value);
+        });
+
+        // Adicione um ouvinte de evento de envio do formulário
+        document.getElementById("filtro-form").addEventListener("submit", function () {
+            // Remova a opção selecionada do armazenamento local ao enviar o formulário
+            localStorage.removeItem("opcaoSelecionada");
+        });
+    });
+</script>
+
 
 {% endblock %}

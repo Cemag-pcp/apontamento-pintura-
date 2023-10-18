@@ -61,14 +61,32 @@ def finalizar_cambao():
     if request.method == 'POST':
 
         data_filter = request.form.get('data_filter')
+        filtro_tipo = request.form.get('filtro_tipo')
+
+        print(filtro_tipo)
 
         if data_filter == '':
             table, table1 = planilha_finalizar_cambao()
+
+            if filtro_tipo != 'Todos':
+                table1 = table1.loc[(table1['TIPO'] == filtro_tipo) | (table1['TIPO'] == 'PÓ,PU') | (table1['TIPO'] == 'PU,PÓ')]
+            else:
+                pass 
+
+            table = table1.values.tolist()
+
         else:
             data_filter = datetime.strptime(data_filter, "%Y-%m-%d").strftime("%d/%m/%Y")
             
             table, table1 = planilha_finalizar_cambao()
+        
+            if filtro_tipo != 'Todos':
+                table1 = table1.loc[(table['TIPO'] == filtro_tipo) | (table1['TIPO'] == 'PÓ,PU') | (table1['TIPO'] == 'PU,PÓ')]
+            else:
+                pass 
+
             table = table1[table1['DATA DA CARGA'] == data_filter].values.tolist()
+
 
         return render_template("finalizar_cambao.html", table=table)
 

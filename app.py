@@ -14,6 +14,27 @@ app.register_blueprint(finalizarcambao_bp)
 @app.route('/', methods=['GET','POST'])
 def gerar_cambao():
 
+    def tiposTinta():
+        
+        scope = ['https://www.googleapis.com/auth/spreadsheets',
+                "https://www.googleapis.com/auth/drive"]
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+        sa = gspread.service_account('service_account.json')    
+
+        name_sheet = 'BASE COM TIPO'
+        worksheet = 'BASE COM TIPO'
+        sh = sa.open(name_sheet)
+        wks = sh.worksheet(worksheet)
+        list1 = wks.get()
+        cabecalho = wks.row_values(1)
+
+        table = pd.DataFrame(list1)
+        table = table.iloc[1:,:]
+        table_com_tipo = table.set_axis(cabecalho, axis=1)
+
+        return table_com_tipo
+
     def get_sheet_data_gerar():
 
         scope = ['https://www.googleapis.com/auth/spreadsheets',
@@ -31,7 +52,7 @@ def gerar_cambao():
         cabecalho = wks.row_values(1)
 
         table = pd.DataFrame(list1)
-        table = table.iloc[:,:8]
+        table = table.iloc[1:,:8]
         table = table.set_axis(cabecalho, axis=1)
 
         table = table.drop_duplicates()
@@ -44,17 +65,64 @@ def gerar_cambao():
 
         table['CAMBÃO'] = ''
 
-        table['TIPO'] = ''
+        table = table[['DATA DA CARGA','CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.','CAMBÃO']]
+            
+        df_tipo = tiposTinta()
+        tabela_quantidade_apontada = producao_finalizada()
 
-        table = table[['DATA DA CARGA','CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.','CAMBÃO','TIPO']]
+        table = table.merge(df_tipo[['CODIGO','TIPO']], how='left', on='CODIGO').drop_duplicates()
         
+        table['VALOR_UNICO'] = table['DATA DA CARGA'] + table['CODIGO']
+
+        table = table.merge(tabela_quantidade_apontada[['VALOR_UNICO','QT APONT.']], how='left', on='VALOR_UNICO')
+        
+        table['QT APONT.'] = table['QT APONT.'].fillna(0).astype(int)
+        table['QT_ITENS'] = table['QT_ITENS'].astype(int)
+        
+        table['restante'] = table['QT_ITENS'] - table['QT APONT.']
+
+        table['QT_ITENS'] = table['restante']
+        
+        table = table[table['QT_ITENS'] > 0]
+
         values = table.values.tolist()
 
         return values , table
     
+    def producao_finalizada():
+        
+        scope = ['https://www.googleapis.com/auth/spreadsheets',
+                "https://www.googleapis.com/auth/drive"]
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+        client = gspread.authorize(credentials)
+        sa = gspread.service_account('service_account.json')    
+
+        name_sheet = 'Base ordens de produçao finalizada'
+        worksheet = 'Pintura'
+        sh = sa.open(name_sheet)
+        wks = sh.worksheet(worksheet)
+        list1 = wks.get()
+        cabecalho = wks.row_values(1)
+
+        table = pd.DataFrame(list1)
+        table = table.iloc[1:,:]
+        table = table.set_axis(cabecalho, axis=1)
+        
+        table['QT APONT.'] = table['QT APONT.'].astype(int)
+        table['QT PLAN.'] = table['QT PLAN.'].astype(int)
+
+        tabela_quantidade_apontada = table.groupby(['DATA DA CARGA','CODIGO','COR']).sum()[['QT APONT.']].reset_index()
+        tabela_quantidade_apontada['VALOR_UNICO'] = tabela_quantidade_apontada['DATA DA CARGA'] + tabela_quantidade_apontada['CODIGO']
+
+        return tabela_quantidade_apontada
+
     if request.method == 'POST':
         filtro_data = request.form.get('filtro_data')
         filtro_cor = request.form.get('filtro_cor')
+        filtro_tipo = request.form.get('filtro_tipo')
+
+        print(filtro_tipo)
 
         hoje = datetime.datetime.today().strftime("%d/%m/%Y")
 
@@ -75,9 +143,14 @@ def gerar_cambao():
         else:
             pass 
 
+        if filtro_tipo != 'Todos':
+            table = table.loc[(table['TIPO'] == filtro_tipo) | (table['TIPO'] == 'PÓ,PU') | (table['TIPO'] == 'PU,PÓ')]
+        else:
+            pass 
+
         sheet_data = table.values.tolist()
 
-        return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores)
+        return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, filtro_tipo=filtro_tipo)
 
     sheet_data, table = get_sheet_data_gerar()
 
@@ -88,7 +161,9 @@ def gerar_cambao():
 
     sheet_data = table.values.tolist()
 
-    return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores)
+    filtro_tipo = None
+
+    return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, filtro_tipo=filtro_tipo)
 
 @app.route('/send_gerar', methods=['GET','POST'])
 def gerar_planilha():
@@ -114,14 +189,18 @@ def gerar_planilha():
     for i in range(len(table_final)):
         try:
             if table_final['tipo'][i] == '':
-                table_final['tipo'][i] = 'PO'
+                table_final['tipo'][i] = 'PÓ'
         except:
             pass
 
     table_final = table_final[['flag','codigo', 'descricao', 'qt_itens', 'cor', 'prod','cambao','tipo','data','data finalizada','setor']]
 
     table_final['prod'] = table_final['prod'].astype(int)
-    table_final['cambao'] = table_final['cambao'].astype(int)
+    try:
+        table_final['cambao'] = table_final['cambao'].astype(int)
+    except:
+        pass
+    
     table_final['qt_itens'] = table_final['qt_itens'].astype(int)
 
     lista_final = table_final.values.tolist()

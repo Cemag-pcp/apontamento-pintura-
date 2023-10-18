@@ -11,7 +11,13 @@
             {% for cor in cores %}
                 <option value="{{ cor }}" {% if request.form['filtro_cor'] == cor %} selected {% endif %}>{{ cor }}</option>
             {% endfor %}
-          </select>
+        </select>
+        <label>Tipo de tinta:</label>
+            <select name="filtro_tipo" id="filtro_tipo">
+                <option value="Todos">Todos</option>
+                <option value="PÓ">PÓ</option>
+                <option value="PU">PU</option>
+            </select>
         <button id="filtrar-button" type="submit">Filtrar</button>
     </div>
 </form>
@@ -57,12 +63,12 @@
                           <input id="cor" type="text" value="{{ data[4] }}" disabled>
                         {% endif %}
                     </td>
-                    <td><input id = 'prod' type="number" value="{{ data[5] }}"></td>
+                    <td><input id = 'prod' type="number" value="{{ data[3] }}"></td>
                     <td><input id = 'cambao' type="number" value="{{ data[6] }}"></td>
                     <td>
                         <select id = 'tipo' type="text" value="{{ data[7] }}">
-                            <option value="" selected hidden></option>
-                            <option value="PO">PO</option>
+                            <option value="{{ data[7] }}">{{ data[7] }}</option>
+                            <option value="PÓ">PÓ</option>
                             <option value="PU">PU</option>
                         </select>
                     </td>
@@ -127,5 +133,33 @@
                     $("#loading-overlay").hide();
     });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleciona o elemento do <select>
+        var selectElement = document.getElementById("filtro_tipo");
+
+        // Recupere a opção selecionada (se houver)
+        var opcaoSelecionada = localStorage.getItem("opcaoSelecionada");
+
+        if (opcaoSelecionada) {
+            // Se uma opção foi selecionada, defina-a como a primeira opção
+            selectElement.value = opcaoSelecionada;
+        }
+
+        // Adicione um ouvinte de evento de mudança ao <select>
+        selectElement.addEventListener("change", function () {
+            // Armazene a opção selecionada no armazenamento local
+            localStorage.setItem("opcaoSelecionada", selectElement.value);
+        });
+
+        // Adicione um ouvinte de evento de envio do formulário
+        document.getElementById("filtro-form").addEventListener("submit", function () {
+            // Remova a opção selecionada do armazenamento local ao enviar o formulário
+            localStorage.removeItem("opcaoSelecionada");
+        });
+    });
+</script>
+
 
 {% endblock %}
