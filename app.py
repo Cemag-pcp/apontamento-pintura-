@@ -148,6 +148,13 @@ def gerar_cambao():
         else:
             pass 
 
+        # if filtro_tipo == 'PU':
+        #     table['QUANTIDADE PROD.'] = ''
+        # else:
+        #     table['QUANTIDADE PROD.'] = table['QT_ITENS']
+
+        print(table)
+
         sheet_data = table.values.tolist()
 
         return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, filtro_tipo=filtro_tipo)

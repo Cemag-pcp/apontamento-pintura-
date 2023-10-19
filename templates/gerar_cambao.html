@@ -22,10 +22,14 @@
     </div>
 </form>
 
+<div style="margin-top: 10px;" class="form-group">
+    <button id="limpar-todos-status">Limpar quantidade</button>
+</div>
+
 <h1 id = 'titulo_gerar'>Gerar Cambão</h1>
 <div id="planilha">
     <div class="center-container">
-        <table class="table table-striped centered-table">       
+        <table class="table table-striped centered-table" id="table-gerar">       
         <thead id = 'cabecalho_gerar'>
             <tr style="margin-bottom: 20px;">
                 <th>Data</th>
@@ -63,7 +67,9 @@
                           <input id="cor" type="text" value="{{ data[4] }}" disabled>
                         {% endif %}
                     </td>
-                    <td><input id = 'prod' type="number" value="{{ data[3] }}"></td>
+                    <td>
+                        <input id = 'prod' type="number" value="{{ data[3] }}">
+                    </td>
                     <td><input id = 'cambao' type="number" value="{{ data[6] }}"></td>
                     <td>
                         <select id = 'tipo' type="text" value="{{ data[7] }}">
@@ -161,5 +167,17 @@
     });
 </script>
 
+<script>
+    // Adicione um ouvinte de evento de clique a um único botão
+    document.getElementById("limpar-todos-status").addEventListener("click", function() {
+        // Encontre todos os campos 'status_finalizar' na tabela
+        var statusInputs = document.querySelectorAll("#table-gerar #prod");
+
+        // Limpe o valor de cada campo 'status_finalizar'
+        for (var i = 0; i < statusInputs.length; i++) {
+            statusInputs[i].value = "";
+        }
+    });
+</script>
 
 {% endblock %}

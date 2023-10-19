@@ -14,6 +14,10 @@
     </div>
 </form>
 
+<div style="margin-top: 10px;" class="form-group">
+    <button id="limpar-todos-status">Limpar Todos os Status</button>
+</div>
+
 <h1 id = 'titulo_finalizar'>Finalizar Cambão</h1>
 <div id="MyForm">
     <div class="center-container">
@@ -140,5 +144,17 @@
     });
 </script>
 
+<script>
+    // Adicione um ouvinte de evento de clique a um único botão
+    document.getElementById("limpar-todos-status").addEventListener("click", function() {
+        // Encontre todos os campos 'status_finalizar' na tabela
+        var statusInputs = document.querySelectorAll("#tabela_finalizar #status_finalizar");
+
+        // Limpe o valor de cada campo 'status_finalizar'
+        for (var i = 0; i < statusInputs.length; i++) {
+            statusInputs[i].value = "";
+        }
+    });
+</script>
 
 {% endblock %}
