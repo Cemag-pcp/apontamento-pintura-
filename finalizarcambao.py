@@ -106,8 +106,11 @@ def tratar_dados():
     
     print(df)
 
-    df['cambao'] = df['cambao'].astype(int)
-    
+    try:
+        df['cambao'] = df['cambao'].astype(int)
+    except:
+        pass
+
     print(df)
 
     lista_id = df['id'].values.tolist() 
