@@ -6,116 +6,137 @@ import time
 from gspread_formatting import CellFormat, format_cell_range
 from finalizarcambao import finalizarcambao_bp
 import datetime
+import cachetools
 
 app = Flask(__name__)
 app.secret_key = "apontamentopintura"
 app.register_blueprint(finalizarcambao_bp)
 
+cache_get_sheet = cachetools.LRUCache(maxsize=128)
+cache_tipos_tinta = cachetools.LRUCache(maxsize=128)
+cache_producao_finalizada = cachetools.LRUCache(maxsize=128)
+
+
+def resetar_cache(cache):
+
+    """
+    Função para limpar caches (não precisar fazer
+    requisição sempre que atualizar a página).
+    """
+    cache.clear()
+
+
+@cachetools.cached(cache_get_sheet)
+def get_sheet_data_gerar():
+
+    scope = ['https://www.googleapis.com/auth/spreadsheets',
+            "https://www.googleapis.com/auth/drive"]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    client = gspread.authorize(credentials)
+    sa = gspread.service_account('service_account.json')    
+
+    name_sheet = 'Base gerador de ordem de producao'
+    worksheet = 'Pintura'
+    sh = sa.open(name_sheet)
+    wks = sh.worksheet(worksheet)
+    list1 = wks.get()
+    cabecalho = wks.row_values(1)
+
+    table = pd.DataFrame(list1)
+    table = table.iloc[1:,:8]
+    table = table.set_axis(cabecalho, axis=1)
+
+    table = table.drop_duplicates()
+
+    table = table.drop(table.index[0])
+
+    table.reset_index(drop=True)
+
+    table['PROD.'] = ''
+
+    table['CAMBÃO'] = ''
+
+    table = table[['DATA DA CARGA','CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.','CAMBÃO']]
+        
+    df_tipo = tiposTinta()
+    tabela_quantidade_apontada = producao_finalizada()
+
+    table = table.merge(df_tipo[['CODIGO','TIPO']], how='left', on='CODIGO').drop_duplicates()
+    
+    table['VALOR_UNICO'] = table['DATA DA CARGA'] + table['CODIGO']
+
+    table = table.merge(tabela_quantidade_apontada[['VALOR_UNICO','QT APONT.']], how='left', on='VALOR_UNICO')
+    
+    table['QT APONT.'] = table['QT APONT.'].fillna(0).astype(int)
+    table['QT_ITENS'] = table['QT_ITENS'].astype(int)
+    
+    table['restante'] = table['QT_ITENS'] - table['QT APONT.']
+
+    table['QT_ITENS'] = table['restante']
+    
+    table = table[table['QT_ITENS'] > 0]
+
+    values = table.values.tolist()
+
+    return values , table
+
+
+@cachetools.cached(cache_tipos_tinta)
+def tiposTinta():
+    
+    scope = ['https://www.googleapis.com/auth/spreadsheets',
+            "https://www.googleapis.com/auth/drive"]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    sa = gspread.service_account('service_account.json')    
+
+    name_sheet = 'BASE COM TIPO'
+    worksheet = 'BASE COM TIPO'
+    sh = sa.open(name_sheet)
+    wks = sh.worksheet(worksheet)
+    list1 = wks.get()
+    cabecalho = wks.row_values(1)
+
+    table = pd.DataFrame(list1)
+    table = table.iloc[1:,:]
+    table_com_tipo = table.set_axis(cabecalho, axis=1)
+
+    return table_com_tipo
+
+
+@cachetools.cached(cache_producao_finalizada)
+def producao_finalizada():
+    
+    scope = ['https://www.googleapis.com/auth/spreadsheets',
+            "https://www.googleapis.com/auth/drive"]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    client = gspread.authorize(credentials)
+    sa = gspread.service_account('service_account.json')    
+
+    name_sheet = 'Base ordens de produçao finalizada'
+    worksheet = 'Pintura'
+    sh = sa.open(name_sheet)
+    wks = sh.worksheet(worksheet)
+    list1 = wks.get()
+    cabecalho = wks.row_values(1)
+
+    table = pd.DataFrame(list1)
+    table = table.iloc[1:,:]
+    table = table.set_axis(cabecalho, axis=1)
+    
+    table['QT APONT.'] = table['QT APONT.'].astype(int)
+    table['QT PLAN.'] = table['QT PLAN.'].astype(int)
+
+    tabela_quantidade_apontada = table.groupby(['DATA DA CARGA','CODIGO','COR']).sum()[['QT APONT.']].reset_index()
+    tabela_quantidade_apontada['VALOR_UNICO'] = tabela_quantidade_apontada['DATA DA CARGA'] + tabela_quantidade_apontada['CODIGO']
+
+    return tabela_quantidade_apontada
+
+
 @app.route('/', methods=['GET','POST'])
 def gerar_cambao():
-
-    def tiposTinta():
-        
-        scope = ['https://www.googleapis.com/auth/spreadsheets',
-                "https://www.googleapis.com/auth/drive"]
-
-        credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-        sa = gspread.service_account('service_account.json')    
-
-        name_sheet = 'BASE COM TIPO'
-        worksheet = 'BASE COM TIPO'
-        sh = sa.open(name_sheet)
-        wks = sh.worksheet(worksheet)
-        list1 = wks.get()
-        cabecalho = wks.row_values(1)
-
-        table = pd.DataFrame(list1)
-        table = table.iloc[1:,:]
-        table_com_tipo = table.set_axis(cabecalho, axis=1)
-
-        return table_com_tipo
-
-    def get_sheet_data_gerar():
-
-        scope = ['https://www.googleapis.com/auth/spreadsheets',
-                "https://www.googleapis.com/auth/drive"]
-
-        credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-        client = gspread.authorize(credentials)
-        sa = gspread.service_account('service_account.json')    
-
-        name_sheet = 'Base gerador de ordem de producao'
-        worksheet = 'Pintura'
-        sh = sa.open(name_sheet)
-        wks = sh.worksheet(worksheet)
-        list1 = wks.get()
-        cabecalho = wks.row_values(1)
-
-        table = pd.DataFrame(list1)
-        table = table.iloc[1:,:8]
-        table = table.set_axis(cabecalho, axis=1)
-
-        table = table.drop_duplicates()
-
-        table = table.drop(table.index[0])
-
-        table.reset_index(drop=True)
-
-        table['PROD.'] = ''
-
-        table['CAMBÃO'] = ''
-
-        table = table[['DATA DA CARGA','CODIGO', 'DESCRICAO', 'QT_ITENS', 'COR', 'PROD.','CAMBÃO']]
-            
-        df_tipo = tiposTinta()
-        tabela_quantidade_apontada = producao_finalizada()
-
-        table = table.merge(df_tipo[['CODIGO','TIPO']], how='left', on='CODIGO').drop_duplicates()
-        
-        table['VALOR_UNICO'] = table['DATA DA CARGA'] + table['CODIGO']
-
-        table = table.merge(tabela_quantidade_apontada[['VALOR_UNICO','QT APONT.']], how='left', on='VALOR_UNICO')
-        
-        table['QT APONT.'] = table['QT APONT.'].fillna(0).astype(int)
-        table['QT_ITENS'] = table['QT_ITENS'].astype(int)
-        
-        table['restante'] = table['QT_ITENS'] - table['QT APONT.']
-
-        table['QT_ITENS'] = table['restante']
-        
-        table = table[table['QT_ITENS'] > 0]
-
-        values = table.values.tolist()
-
-        return values , table
-    
-    def producao_finalizada():
-        
-        scope = ['https://www.googleapis.com/auth/spreadsheets',
-                "https://www.googleapis.com/auth/drive"]
-
-        credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-        client = gspread.authorize(credentials)
-        sa = gspread.service_account('service_account.json')    
-
-        name_sheet = 'Base ordens de produçao finalizada'
-        worksheet = 'Pintura'
-        sh = sa.open(name_sheet)
-        wks = sh.worksheet(worksheet)
-        list1 = wks.get()
-        cabecalho = wks.row_values(1)
-
-        table = pd.DataFrame(list1)
-        table = table.iloc[1:,:]
-        table = table.set_axis(cabecalho, axis=1)
-        
-        table['QT APONT.'] = table['QT APONT.'].astype(int)
-        table['QT PLAN.'] = table['QT PLAN.'].astype(int)
-
-        tabela_quantidade_apontada = table.groupby(['DATA DA CARGA','CODIGO','COR']).sum()[['QT APONT.']].reset_index()
-        tabela_quantidade_apontada['VALOR_UNICO'] = tabela_quantidade_apontada['DATA DA CARGA'] + tabela_quantidade_apontada['CODIGO']
-
-        return tabela_quantidade_apontada
 
     if request.method == 'POST':
         filtro_data = request.form.get('filtro_data')
@@ -164,6 +185,7 @@ def gerar_cambao():
     hoje = datetime.datetime.today().strftime("%d/%m/%Y")
 
     table = table[table['DATA DA CARGA'] == hoje]
+    table = table.fillna('')
     cores = table['COR'].drop_duplicates().values.tolist()
 
     sheet_data = table.values.tolist()
@@ -171,6 +193,7 @@ def gerar_cambao():
     filtro_tipo = None
 
     return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, filtro_tipo=filtro_tipo)
+
 
 @app.route('/send_gerar', methods=['GET','POST'])
 def gerar_planilha():
@@ -228,7 +251,23 @@ def gerar_planilha():
 
     wks.append_rows(lista_final)
 
+    resetar_cache(cache_get_sheet)
+    resetar_cache(cache_tipos_tinta)
+    resetar_cache(cache_producao_finalizada)
+
     return 'Planilha gerada com sucesso!'
+
+
+@app.route('/limpar-caches', methods=['GET','POST'])
+def limpar_caches():
+
+    resetar_cache(cache_get_sheet)
+    resetar_cache(cache_tipos_tinta)
+    resetar_cache(cache_producao_finalizada)
+
+    return redirect(url_for("gerar_cambao"))
+    
+
 
 if __name__ == '__main__':
     app.run(debug=True)
