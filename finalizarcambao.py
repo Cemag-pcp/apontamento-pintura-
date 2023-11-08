@@ -81,7 +81,10 @@ def finalizar_cambao():
             table, table1 = planilha_finalizar_cambao()
         
             if filtro_tipo != 'Todos':
-                table1 = table1.loc[(table['TIPO'] == filtro_tipo) | (table1['TIPO'] == 'PÓ,PU') | (table1['TIPO'] == 'PU,PÓ')]
+                try:
+                    table1 = table1.loc[ (table['TIPO'] == filtro_tipo) | (table1['TIPO'] == 'PÓ,PU') | (table1['TIPO'] == 'PU,PÓ') ]
+                except:
+                    pass
             else:
                 pass 
 
