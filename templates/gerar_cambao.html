@@ -24,9 +24,8 @@
 
 <div style="margin-top: 10px;" class="form-group">
     <form action="/limpar-caches" method="POST">
-        <button type="submit">Atualizar</button>
+        <button type="submit">Atualizar dados da carga</button>
     </form>
-    <button id="limpar-todos-status">Limpar quantidade</button>
 </div>
 
 <h1 id = 'titulo_gerar'>Gerar Cambão</h1>
@@ -71,12 +70,12 @@
                         {% endif %}
                     </td>
                     <td>
-                        <input id = 'prod' type="number" value="{{ data[3] }}">
+                        <input id = 'prod' type="number">
                     </td>
                     <td><input id = 'cambao' type="number" value="{{ data[6] }}"></td>
                     <td>
-                        <select id = 'tipo' type="text" value="{{ data[7] }}">
-                            <option value="{{ data[7] }}">{{ data[7] }}</option>
+                        <select id = 'tipo' type="text" value="">
+                            <option value=""></option>
                             <option value="PÓ">PÓ</option>
                             <option value="PU">PU</option>
                         </select>
