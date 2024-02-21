@@ -15,7 +15,7 @@ app.register_blueprint(finalizarcambao_bp)
 cache_get_sheet = cachetools.LRUCache(maxsize=128)
 cache_tipos_tinta = cachetools.LRUCache(maxsize=128)
 cache_producao_finalizada = cachetools.LRUCache(maxsize=128)
-
+cache_itens_pintura = cachetools.LRUCache(maxsize=128)
 
 def resetar_cache(cache):
 
@@ -24,6 +24,14 @@ def resetar_cache(cache):
     requisição sempre que atualizar a página).
     """
     cache.clear()
+
+
+@cachetools.cached(cache_itens_pintura)
+def csv_itens_pintura():
+
+    df = pd.read_csv("itens_pintura.csv", sep=';')
+
+    return df
 
 
 @cachetools.cached(cache_get_sheet)
@@ -141,9 +149,9 @@ def gerar_cambao():
     if request.method == 'POST':
         filtro_data = request.form.get('filtro_data')
         filtro_cor = request.form.get('filtro_cor')
-        filtro_tipo = request.form.get('filtro_tipo')
+        # filtro_tipo = request.form.get('filtro_tipo')
 
-        print(filtro_tipo)
+        # print(filtro_tipo)
 
         hoje = datetime.datetime.today().strftime("%d/%m/%Y")
 
@@ -164,10 +172,10 @@ def gerar_cambao():
         else:
             pass 
 
-        if filtro_tipo != 'Todos':
-            table = table.loc[(table['TIPO'] == filtro_tipo) | (table['TIPO'] == 'PÓ,PU') | (table['TIPO'] == 'PU,PÓ')]
-        else:
-            pass 
+        # if filtro_tipo != 'Todos':
+        #     table = table.loc[(table['TIPO'] == filtro_tipo) | (table['TIPO'] == 'PÓ,PU') | (table['TIPO'] == 'PU,PÓ')]
+        # else:
+        #     pass 
 
         # if filtro_tipo == 'PU':
         #     table['QUANTIDADE PROD.'] = ''
@@ -178,7 +186,7 @@ def gerar_cambao():
 
         sheet_data = table.values.tolist()
 
-        return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, filtro_tipo=filtro_tipo)
+        return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores)
 
     sheet_data, table = get_sheet_data_gerar()
 
@@ -190,9 +198,14 @@ def gerar_cambao():
 
     sheet_data = table.values.tolist()
 
-    filtro_tipo = None
+    # filtro_tipo = None
 
-    return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, filtro_tipo=filtro_tipo)
+    itens_pintura = csv_itens_pintura()
+    itens_pintura = itens_pintura.values.tolist()
+
+    print(itens_pintura)
+
+    return render_template('gerar_cambao.html', sheet_data=sheet_data,cores=cores, itens_pintura=itens_pintura)
 
 
 @app.route('/send_gerar', methods=['GET','POST'])
@@ -267,6 +280,53 @@ def limpar_caches():
 
     return redirect(url_for("gerar_cambao"))
     
+
+@app.route('/gerar-cambao-peca-fora-do-planejamento', methods=['POST'])
+def gerar_cambao_peca_fora_do_planejamento():
+
+    inputCodigoPeca = request.form.get('inputCodigoPeca')
+    inputCor = request.form.get('inputCor')
+    inputQuantidade = request.form.get('inputQuantidade')
+    inputCambao = request.form.get('inputCambao')
+    selectTipoTinta = request.form.get('selectTipoTinta')
+    data = datetime.datetime.today().strftime("%d/%m/%Y")
+
+    descricao = inputCodigoPeca.split()[1]
+    flag = inputCodigoPeca.split()[0] + data + inputCambao
+    flag = flag.replace('/','')
+
+    lista_pandas = {
+                    'flag':flag, 'codigo':inputCodigoPeca,
+                    'descricao':descricao, 'qt_itens':inputQuantidade,
+                    'cor':inputCor,'prod':inputQuantidade,
+                    'cambao':inputCambao,'tipo':selectTipoTinta,
+                    'data':data, 'data finalizada':data,
+                    'setor':'Pintura'
+                    }
+
+    print(lista_pandas)
+
+    lista_pandas_to_list = [list(lista_pandas.values())]
+
+    scope = ['https://www.googleapis.com/auth/spreadsheets',
+                "https://www.googleapis.com/auth/drive"]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    client = gspread.authorize(credentials)
+    sa = gspread.service_account('service_account.json')    
+
+    name_sheet = 'Base ordens de produçao finalizada'
+    worksheet = 'Pintura'
+    sh = sa.open(name_sheet)
+    wks = sh.worksheet(worksheet)
+
+    wks.append_rows(lista_pandas_to_list)
+
+    resetar_cache(cache_get_sheet)
+    resetar_cache(cache_tipos_tinta)
+    resetar_cache(cache_producao_finalizada)
+
+    return redirect(url_for('gerar_cambao'))
 
 
 if __name__ == '__main__':

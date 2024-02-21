@@ -19,13 +19,99 @@
                 <option value="PU">PU</option>
             </select>
         <button id="filtrar-button" type="submit">Filtrar</button>
+
     </div>
+    <!-- Button trigger modal -->
 </form>
 
 <div style="margin-top: 10px;" class="form-group">
     <form action="/limpar-caches" method="POST">
         <button type="submit">Atualizar dados da carga</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Peça fora do planejamento
+        </button>
     </form>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" action="/gerar-cambao-peca-fora-do-planejamento" method="POST">
+                        <div class="col-md-6">
+                        <label for="codigoPeca" class="form-label">Código da peça</label>
+                        <select id="inputCodigoPeca" name="inputCodigoPeca" class="form-select" required>
+                            {% for item in itens_pintura %}
+                                <option value="{{item[0]}}">{{item[0]}}</option>
+                            {% endfor %}
+                        </select>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="cor" class="form-label">Cor</label>
+                          <select id="inputCor" name="inputCor" class="form-select" required>
+                            <option selected hidden>Escolha</option>
+                            <option value="AN">Azul</option>
+                            <option value="CO">Cinza</option>
+                            <option value="LC">Laranja</option>
+                            <option value="VM">Vermelho</option>
+                            <option value="AM">Amarelo</option>
+                            <option value="VJ">Verde</option>
+                          </select>
+                        </div>
+                        <div class="col-md-4">
+                          <label for="quantidade" class="form-label">Quantidade</label>
+                          <input type="number" class="form-control" name="inputQuantidade" required>
+                        </div>
+                        <div class="col-md-4">
+                          <label for="cambao" class="form-label">Cambão</label>
+                          <input type="number" class="form-control" name="inputCambao" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="tipoTinta" class="form-label">Tipo de tinta</label>
+                            <select id="selectTipoTinta" name="selectTipoTinta" class="form-select" required> 
+                              <option selected hidden>Escolha</option>
+                              <option>PÓ</option>
+                              <option>PU</option>
+                            </select>
+                        </div>
+                        <!-- <div class="col-md-6">
+                          <label for="inputCity" class="form-label">City</label>
+                          <input type="text" class="form-control" id="inputCity">
+                        </div>
+                        <div class="col-md-4">
+                          <label for="inputState" class="form-label">State</label>
+                          <select id="inputState" class="form-select">
+                            <option selected>Choose...</option>
+                            <option>...</option>
+                          </select>
+                        </div>
+                        <div class="col-md-2">
+                          <label for="inputZip" class="form-label">Zip</label>
+                          <input type="text" class="form-control" id="inputZip">
+                        </div>
+                        <div class="col-12">
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="gridCheck">
+                            <label class="form-check-label" for="gridCheck">
+                              Check me out
+                            </label>
+                          </div>
+                        </div> -->
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" id="btPecaForaDoPlanejamento">Salvar</button>
+                        </div> 
+                    </form>
+                </div>
+                                   
+            </div>
+        </div>
+    </div>
 </div>
 
 <h1 id = 'titulo_gerar'>Gerar Cambão</h1>
@@ -44,51 +130,51 @@
                 <th>Tipo</th>
             </tr>
         </thead>
-        <tbody>
-            {% if sheet_data %}
-                {% for data in sheet_data %}
-                <tr>
-                    <td><input id = 'data' type="text" value="{{ data[0] }}" disabled></td>
-                    <td><input id = 'codigo' type="text" value="{{ data[1] }}" disabled></td>
-                    <td><input id = 'descricao' type="text" value="{{ data[2] }}" disabled></td>
-                    <td><input id = 'qt_itens' type="text" value="{{ data[3] }}" disabled></td>
-                    <td>
-                        {% if data[4] == 'Vermelho' %}
-                          <input id="cor" type="text" value="VM" disabled>
-                        {% elif data[4] == 'Verde' %}
-                          <input id="cor" type="text" value="VJ" disabled>
-                        {% elif data[4] == 'Amarelo' %}
-                          <input id="cor" type="text" value="AV" disabled>
-                        {% elif data[4] == 'Cinza' %}
-                          <input id="cor" type="text" value="CO" disabled>
-                        {% elif data[4] == 'Laranja' %}
-                          <input id="cor" type="text" value="LC" disabled>
-                        {% elif data[4] == 'Azul' %}
-                          <input id="cor" type="text" value="AN" disabled>
-                        {% else %}
-                          <input id="cor" type="text" value="{{ data[4] }}" disabled>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <input id = 'prod' type="number">
-                    </td>
-                    <td><input id = 'cambao' type="number" value="{{ data[6] }}"></td>
-                    <td>
-                        <select id = 'tipo' type="text" value="">
-                            <option value=""></option>
-                            <option value="PÓ">PÓ</option>
-                            <option value="PU">PU</option>
-                        </select>
-                    </td>
-                </tr>
-                {% endfor %}
+            <tbody>
+                {% if sheet_data %}
+                    {% for data in sheet_data %}
+                    <tr>
+                        <td><input id = 'data' type="text" value="{{ data[0] }}" disabled></td>
+                        <td><input id = 'codigo' type="text" value="{{ data[1] }}" disabled></td>
+                        <td><input id = 'descricao' type="text" value="{{ data[2] }}" disabled></td>
+                        <td><input id = 'qt_itens' type="text" value="{{ data[3] }}" disabled></td>
+                        <td>
+                            {% if data[4] == 'Vermelho' %}
+                            <input id="cor" type="text" value="VM" disabled>
+                            {% elif data[4] == 'Verde' %}
+                            <input id="cor" type="text" value="VJ" disabled>
+                            {% elif data[4] == 'Amarelo' %}
+                            <input id="cor" type="text" value="AV" disabled>
+                            {% elif data[4] == 'Cinza' %}
+                            <input id="cor" type="text" value="CO" disabled>
+                            {% elif data[4] == 'Laranja' %}
+                            <input id="cor" type="text" value="LC" disabled>
+                            {% elif data[4] == 'Azul' %}
+                            <input id="cor" type="text" value="AN" disabled>
+                            {% else %}
+                            <input id="cor" type="text" value="{{ data[4] }}" disabled>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <input id = 'prod' type="number">
+                        </td>
+                        <td><input id = 'cambao' type="number" value="{{ data[6] }}"></td>
+                        <td>
+                            <select id = 'tipo' type="text" value="">
+                                <option value=""></option>
+                                <option value="PÓ">PÓ</option>
+                                <option value="PU">PU</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-            {% else %}
-                <tr>
-                    <td colspan="7">Nenhum dado disponível</td>
-                </tr>
-            {% endif %}
-        </tbody>
+                {% else %}
+                    <tr>
+                        <td colspan="7">Nenhum dado disponível</td>
+                    </tr>
+                {% endif %}
+            </tbody>
         </table>
     </div>
 </div>
@@ -181,5 +267,7 @@
         }
     });
 </script>
+
+
 
 {% endblock %}
